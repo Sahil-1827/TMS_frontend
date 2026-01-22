@@ -372,11 +372,17 @@ const Board = () => {
 
         selectedTask.assignees?.forEach(u => users.set(u._id, { ...u, type: 'Assignee' }));
 
+        if (selectedTask.createdBy) {
+            if (!users.has(selectedTask.createdBy._id)) {
+                users.set(selectedTask.createdBy._id, { ...selectedTask.createdBy, type: 'Task Creator' });
+            }
+        }
+
         selectedTask.team?.members?.forEach(m => {
             if (!users.has(m._id)) users.set(m._id, { ...m, type: 'Team Member' });
         });
 
-        const userArray = Array.from(users.values());
+        const userArray = Array.from(users.values()).filter(u => u._id !== user?._id);
 
         if (userArray.length > 1) {
             userArray.unshift({
