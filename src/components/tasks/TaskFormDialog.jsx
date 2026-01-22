@@ -13,6 +13,7 @@ import {
     MenuItem,
     Stack,
     Typography,
+    Divider,
 } from "@mui/material";
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import EditIcon from '@mui/icons-material/Edit';
@@ -234,14 +235,28 @@ export default function TaskFormDialog({
                             value={newTask.assignees}
                             onChange={(e) => {
                                 const { value } = e.target;
+                                let updatedAssignees = typeof value === 'string' ? value.split(',') : value;
+
+                                if (updatedAssignees.includes('all')) {
+                                    if (newTask.assignees.length === users.length) {
+                                        updatedAssignees = [];
+                                    } else {
+                                        updatedAssignees = users.map(u => u._id);
+                                    }
+                                }
+
                                 setNewTask({
                                     ...newTask,
-                                    assignees: typeof value === 'string' ? value.split(',') : value,
+                                    assignees: updatedAssignees,
                                     team: "",
                                 });
                             }}
                             label="Assignees"
                         >
+                            <MenuItem value="all" sx={{ fontWeight: 'bold', color: 'primary.main' }}>
+                                {newTask.assignees.length === users.length && users.length > 0 ? "Deselect All" : "Select All"}
+                            </MenuItem>
+                            <Divider />
                             {users.map((u) => (
                                 <MenuItem key={u._id} value={u._id}>
                                     {u.name}
