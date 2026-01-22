@@ -501,24 +501,6 @@ const Board = () => {
         }
     };
 
-    const getPriorityColor = (priority) => {
-        switch (priority) {
-            case 'High': return '#ffebee';
-            case 'Medium': return '#fff8e1';
-            case 'Low': return '#e3f2fd';
-            default: return theme.palette.action.hover;
-        }
-    };
-
-    const getPriorityTextColor = (priority) => {
-        switch (priority) {
-            case 'High': return '#d32f2f';
-            case 'Medium': return '#f57c00';
-            case 'Low': return '#1976d2';
-            default: return theme.palette.text.secondary;
-        }
-    };
-
     const renderCommentText = (text) => {
         if (!text) return null;
         if (typeof text !== 'string') return text;
@@ -661,9 +643,9 @@ const Board = () => {
                                                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                                                     <Box sx={{
                                                         width: 8, height: 8, borderRadius: '50%', bgcolor:
-                                                            columnId === 'To Do' ? '#fbbf24' :
-                                                                columnId === 'In Progress' ? '#3b82f6' :
-                                                                    '#a855f7'
+                                                            columnId === 'To Do' ? theme.palette.info.main :
+                                                                columnId === 'In Progress' ? theme.palette.warning.main :
+                                                                    theme.palette.success.main
                                                     }} />
                                                     <Typography variant="subtitle1" fontWeight="bold" color="text.primary">
                                                         {columnId}
