@@ -401,7 +401,8 @@ const Board = () => {
 
         const before = newComment.substring(0, mentionCursorPos);
         const after = newComment.substring(inputRef.current?.selectionStart || newComment.length);
-        const newValue = `${before}@${user.name} ${after}`;
+        const mentionName = user.name.replace(/\s+/g, '_');
+        const newValue = `${before}@${mentionName} ${after}`;
 
         setNewComment(newValue);
         setMentionQuery(null);
