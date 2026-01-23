@@ -29,8 +29,8 @@ export default function SignUp() {
   const handleSignUp = async (e) => {
     e.preventDefault();
     try {
-      await api.post('/auth/register', { name, email, password });
-      toast.success('Registration successful! Please log in.');
+      const res = await api.post('/auth/register', { name, email, password });
+      toast.success(res.data.message || 'Registration successful! Please check your email.');
       navigate('/login');
     } catch (error) {
       console.error("Registration failed:", error); 
