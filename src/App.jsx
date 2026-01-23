@@ -17,7 +17,6 @@ import Teams from './pages/Teams';
 import Terms from './pages/Terms';
 import Users from './pages/Users';
 import Board from './pages/Board';
-import VerifyEmail from './pages/VerifyEmail';
 import { AuthProvider } from "./context/AuthContext";
 import { ThemeProviderWrapper } from "./context/ThemeContext";
 import { ActivityLogProvider } from "./context/ActivityLogContext";
@@ -46,7 +45,6 @@ function App() {
                     <Route path="privacy" element={<Privacy />} />
                     <Route path="profile" element={<Profile />} />
                     <Route path="signup" element={<Signup />} />
-                    <Route path="verify-email" element={<VerifyEmail />} />
                     <Route path="tasks" element={<Tasks />} />
                     <Route path="board" element={<Board />} />
                     <Route path="tasks/edit/:id" element={<EditTask />} />
