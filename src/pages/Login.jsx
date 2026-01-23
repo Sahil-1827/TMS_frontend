@@ -24,13 +24,18 @@ export default function Login() {
     }
   }, [user, loading, navigate]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleLogin = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       await login(email, password);
       toast.success("Login successful!");
     } catch (error) {
       toast.error(error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -80,7 +85,15 @@ export default function Login() {
           required
           sx={{ mb: 2 }}
         />
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mb: 2 }}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mb: 2 }}
+          disabled={isSubmitting}
+          endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           Login
         </Button>
         <Box sx={{ textAlign: 'center' }}>

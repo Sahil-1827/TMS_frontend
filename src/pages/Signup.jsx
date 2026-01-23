@@ -26,14 +26,19 @@ export default function SignUp() {
     }
   }, [user, loading, navigate]);
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   const handleSignUp = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const res = await api.post('/auth/register', { name, email, password });
       toast.success(res.data.message || 'Registration successful! Please check your email.');
       navigate('/login');
     } catch (error) {
-      console.error("Registration failed:", error); 
+      console.error("Registration failed:", error);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -92,7 +97,15 @@ export default function SignUp() {
           required
           sx={{ mb: 2 }}
         />
-        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mb: 2 }}>
+        <Button
+          type="submit"
+          variant="contained"
+          color="primary"
+          fullWidth
+          sx={{ mb: 2 }}
+          disabled={isSubmitting}
+          endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+        >
           Sign Up
         </Button>
         <Box sx={{ textAlign: 'center' }}>
