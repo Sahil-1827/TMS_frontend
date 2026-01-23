@@ -1,6 +1,6 @@
 import { Paper, Typography, Box, Skeleton, useTheme, alpha } from '@mui/material';
 
-const ChartCard = ({ title, children, loading, action, chartType = 'bar' }) => {
+const ChartCard = ({ title, children, loading, action, chartType = 'bar', className, sx, ...other }) => {
     const theme = useTheme();
 
     const renderSkeleton = () => {
@@ -17,7 +17,7 @@ const ChartCard = ({ title, children, loading, action, chartType = 'bar' }) => {
                                 sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}
                             >
                                 <Skeleton variant="circular" width={10} height={10} />
-                                <Skeleton variant="text" width={40}/>
+                                <Skeleton variant="text" width={40} />
                             </Box>
                         ))}
                     </Box>
@@ -128,7 +128,8 @@ const ChartCard = ({ title, children, loading, action, chartType = 'bar' }) => {
 
     return (
         <Paper
-            sx={{
+            className={className}
+            sx={[{
                 p: 3,
                 height: '100%',
                 borderRadius: 4,
@@ -139,8 +140,9 @@ const ChartCard = ({ title, children, loading, action, chartType = 'bar' }) => {
                 boxShadow: theme.palette.mode === 'dark',
                 overflow: 'hidden',
                 position: 'relative'
-            }}
+            }, ...(Array.isArray(sx) ? sx : [sx])]}
             elevation={0}
+            {...other}
         >
             {/* Header */}
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
@@ -160,17 +162,87 @@ const ChartCard = ({ title, children, loading, action, chartType = 'bar' }) => {
             </Box>
 
             {/* Background Decoration (optional) */}
-            <Box sx={{
-                position: 'absolute',
-                bottom: -50,
-                right: -50,
-                width: 150,
-                height: 150,
-                borderRadius: '50%',
-                bgcolor: alpha(theme.palette.primary.main, 0.03),
-                zIndex: 0,
-                pointerEvents: 'none'
-            }} />
+            <>
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: -60,
+                        right: -60,
+                        width: 200,
+                        height: 200,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.06),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: -30,
+                        left: -30,
+                        width: 120,
+                        height: 120,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.02),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        top: -30,
+                        left: -30,
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: -60,
+                        right: -60,
+                        width: 170,
+                        height: 170,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.03),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: -30,
+                        right: -30,
+                        width: 100,
+                        height: 100,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.05),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+                <Box
+                    sx={{
+                        position: 'absolute',
+                        bottom: -30,
+                        left: -30,
+                        width: 80,
+                        height: 80,
+                        borderRadius: '50%',
+                        bgcolor: alpha(theme.palette.primary.main, 0.09),
+                        zIndex: 0,
+                        pointerEvents: 'none',
+                    }}
+                />
+            </>
+
         </Paper>
     );
 };
