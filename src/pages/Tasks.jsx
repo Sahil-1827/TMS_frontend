@@ -30,13 +30,13 @@ import {
   Skeleton,
   Tooltip,
   Stack,
-  useTheme as useMuiTheme
+  useTheme as useMuiTheme,
 } from "@mui/material";
-import AddCircleIcon from '@mui/icons-material/AddCircle';
-import TaskIcon from '@mui/icons-material/Task';
-import DeleteForeverTwoToneIcon from '@mui/icons-material/DeleteForeverTwoTone';
-import { toast } from 'react-toastify';
-import Swal from 'sweetalert2';
+import AddCircleIcon from "@mui/icons-material/AddCircle";
+import TaskIcon from "@mui/icons-material/Task";
+import DeleteForeverTwoToneIcon from "@mui/icons-material/DeleteForeverTwoTone";
+import { toast } from "react-toastify";
+import Swal from "sweetalert2";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import api from "../api";
@@ -44,6 +44,10 @@ import { useActivityLog } from "../context/ActivityLogContext";
 import { useNotifications } from "../context/NotificationContext";
 import StatusBadge from "../components/common/StatusBadge";
 import TaskFormDialog from "../components/tasks/TaskFormDialog";
+import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import { DatePicker } from "@mui/x-date-pickers/DatePicker";
+import dayjs from "dayjs";
 
 export default function Tasks() {
   const { user, token, loading } = useAuth();
@@ -53,14 +57,6 @@ export default function Tasks() {
   const { fetchLogs } = useActivityLog();
   const { registerUpdateCallback, unregisterUpdateCallback } =
     useNotifications();
-
-  const getTodayDate = () => {
-    const today = new Date();
-    const year = today.getFullYear();
-    const month = String(today.getMonth() + 1).padStart(2, '0');
-    const day = String(today.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
-  };
 
   const [tasks, setTasks] = useState([]);
   const [displayTasks, setDisplayTasks] = useState([]);
@@ -115,15 +111,13 @@ export default function Tasks() {
           search: debouncedSearch,
           status: statusFilter === "All" ? "" : statusFilter,
           priority: priorityFilter === "All" ? "" : priorityFilter,
-          dueDate: dateFilter
+          dueDate: dateFilter,
         });
 
         const [tasksRes, usersRes, teamsRes] = await Promise.all([
-          api.get(
-            `/tasks?${queryParams.toString()}`
-          ),
+          api.get(`/tasks?${queryParams.toString()}`),
           api.get("/users"),
-          api.get("/teams")
+          api.get("/teams"),
         ]);
 
         setTasks(tasksRes.data.tasks);
@@ -133,7 +127,9 @@ export default function Tasks() {
         setUsers(usersRes.data);
         setTeams(teamsRes.data.teams || teamsRes.data);
       } catch (error) {
-        toast.error(error.response?.data?.message || "Failed to fetch page data");
+        toast.error(
+          error.response?.data?.message || "Failed to fetch page data",
+        );
       } finally {
         setLoadingTasks(false);
       }
@@ -151,9 +147,8 @@ export default function Tasks() {
     debouncedSearch,
     statusFilter,
     priorityFilter,
-    dateFilter
+    dateFilter,
   ]);
-
 
   useEffect(() => {
     if (!loading && !user) {
@@ -167,14 +162,16 @@ export default function Tasks() {
     const currentUserId = currentUser._id || currentUser.id;
     if (!currentUserId) return false;
 
-    if (task.assignees && task.assignees.some(a => a._id === currentUserId)) {
+    if (task.assignees && task.assignees.some((a) => a._id === currentUserId)) {
       return true;
     }
 
     if (task.team && task.team._id) {
-      const assignedTeam = allTeams.find(t => t._id === task.team._id);
+      const assignedTeam = allTeams.find((t) => t._id === task.team._id);
       if (assignedTeam && assignedTeam.members) {
-        return assignedTeam.members.some(member => member._id === currentUserId);
+        return assignedTeam.members.some(
+          (member) => member._id === currentUserId,
+        );
       }
     }
 
@@ -189,8 +186,6 @@ export default function Tasks() {
     );
   }
 
-
-
   const handleDeleteTask = async (taskId) => {
     Swal.fire({
       title: "Are you sure?",
@@ -200,8 +195,8 @@ export default function Tasks() {
       confirmButtonColor: theme.palette.primary.main,
       cancelButtonColor: theme.palette.error.main,
       confirmButtonText: "Yes, delete it!",
-      background: mode === 'dark' ? '#1e293b' : '#ffffff',
-      color: mode === 'dark' ? '#f1f5f9' : '#1e293b'
+      background: mode === "dark" ? "#1e293b" : "#ffffff",
+      color: mode === "dark" ? "#f1f5f9" : "#1e293b",
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
@@ -210,8 +205,8 @@ export default function Tasks() {
             title: "Deleted!",
             text: "Task has been deleted.",
             icon: "success",
-            background: mode === 'dark' ? '#1e293b' : '#ffffff',
-            color: mode === 'dark' ? '#f1f5f9' : '#1e293b'
+            background: mode === "dark" ? "#1e293b" : "#ffffff",
+            color: mode === "dark" ? "#f1f5f9" : "#1e293b",
           });
           setRefetchTrigger((prev) => prev + 1);
           fetchLogs();
@@ -240,27 +235,50 @@ export default function Tasks() {
     setPage(value);
   };
 
-
   const handleStatusChange = async (taskId, newStatus) => {
     try {
-      await api.put(
-        `/tasks/${taskId}`,
-        { status: newStatus }
-      );
+      await api.put(`/tasks/${taskId}`, { status: newStatus });
       toast.success("Task status updated successfully!");
       setRefetchTrigger((prev) => prev + 1);
       fetchLogs();
     } catch (error) {
-      toast.error(error.response?.data?.message || "Failed to update task status");
+      toast.error(
+        error.response?.data?.message || "Failed to update task status",
+      );
     }
   };
 
   return (
     <Container maxWidth="2xl" sx={{ py: { xs: 1, sm: 2, md: 3 } }}>
-      <Box sx={{ mb: 4, display: "flex", flexDirection: { xs: "column", sm: "row" }, justifyContent: "space-between", alignItems: "center", gap: 2 }}>
-        <Stack direction="row" spacing={2} alignItems="center" sx={{ width: { xs: "100%", sm: "auto" }, justifyContent: { xs: "flex-start", sm: "flex-start" } }}>
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          flexDirection: { xs: "column", sm: "row" },
+          justifyContent: "space-between",
+          alignItems: "center",
+          gap: 2,
+        }}
+      >
+        <Stack
+          direction="row"
+          spacing={2}
+          alignItems="center"
+          sx={{
+            width: { xs: "100%", sm: "auto" },
+            justifyContent: { xs: "flex-start", sm: "flex-start" },
+          }}
+        >
           <TaskIcon fontSize="large" />
-          <Typography variant="h4" sx={{ fontSize: { xs: "1.5rem", sm: "2.125rem" }, fontWeight: "bold" }}>Task Management</Typography>
+          <Typography
+            variant="h4"
+            sx={{
+              fontSize: { xs: "1.5rem", sm: "2.125rem" },
+              fontWeight: "bold",
+            }}
+          >
+            Task Management
+          </Typography>
         </Stack>
 
         {(user.role === "admin" || user.role === "manager") && (
@@ -287,7 +305,7 @@ export default function Tasks() {
           flexWrap: "wrap",
           gap: 2,
           mb: 4,
-          alignItems: "center"
+          alignItems: "center",
         }}
       >
         <TextField
@@ -296,10 +314,18 @@ export default function Tasks() {
           size="small"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          sx={{ flexGrow: 1, minWidth: "300px", maxWidth: { xs: "100%", sm: "500px" }, width: { xs: "100%", sm: "200px" } }}
+          sx={{
+            flexGrow: 1,
+            minWidth: "300px",
+            maxWidth: { xs: "100%", sm: "500px" },
+            width: { xs: "100%", sm: "200px" },
+          }}
         />
 
-        <FormControl size="small" sx={{ minWidth: "150px", width: { xs: "100%", sm: "200px" } }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: "150px", width: { xs: "100%", sm: "200px" } }}
+        >
           <InputLabel>Status</InputLabel>
           <Select
             value={statusFilter}
@@ -316,7 +342,10 @@ export default function Tasks() {
           </Select>
         </FormControl>
 
-        <FormControl size="small" sx={{ minWidth: "150px", width: { xs: "100%", sm: "200px" } }}>
+        <FormControl
+          size="small"
+          sx={{ minWidth: "150px", width: { xs: "100%", sm: "200px" } }}
+        >
           <InputLabel>Priority</InputLabel>
           <Select
             value={priorityFilter}
@@ -333,18 +362,22 @@ export default function Tasks() {
           </Select>
         </FormControl>
 
-        <TextField
-          type="date"
-          label="Due Date"
-          InputLabelProps={{ shrink: true }}
-          size="small"
-          value={dateFilter}
-          onChange={(e) => {
-            setDateFilter(e.target.value);
-            setPage(1);
-          }}
-          sx={{ minWidth: "150px", width: { xs: "100%", sm: "200px" } }}
-        />
+        <LocalizationProvider dateAdapter={AdapterDayjs}>
+          <DatePicker
+            label="Due Date"
+            value={dateFilter ? dayjs(dateFilter) : null}
+            onChange={(newValue) => {
+              setDateFilter(newValue ? newValue.format("YYYY-MM-DD") : "");
+              setPage(1);
+            }}
+            slotProps={{
+              textField: {
+                size: "small",
+                sx: { minWidth: "150px", width: { xs: "100%", sm: "200px" } },
+              },
+            }}
+          />
+        </LocalizationProvider>
 
         {(search || statusFilter !== "All" || dateFilter) && (
           <Button
@@ -360,23 +393,36 @@ export default function Tasks() {
         )}
       </Box>
 
-      <Paper sx={{ width: '100%', overflow: 'hidden', borderRadius: '12px', boxShadow: 'none' }}>
+      <Paper
+        sx={{
+          width: "100%",
+          overflow: "hidden",
+          borderRadius: "12px",
+          boxShadow: "none",
+        }}
+      >
         <TableContainer
           sx={(theme) => ({
             overflowX: "auto",
-            '&::-webkit-scrollbar': {
-              width: '6px',
-              height: '6px',
+            "&::-webkit-scrollbar": {
+              width: "6px",
+              height: "6px",
             },
-            '&::-webkit-scrollbar-track': {
-              background: 'transparent',
+            "&::-webkit-scrollbar-track": {
+              background: "transparent",
             },
-            '&::-webkit-scrollbar-thumb': {
-              background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.1)',
-              borderRadius: '3px',
+            "&::-webkit-scrollbar-thumb": {
+              background:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.1)"
+                  : "rgba(0,0,0,0.1)",
+              borderRadius: "3px",
             },
-            '&::-webkit-scrollbar-thumb:hover': {
-              background: theme.palette.mode === 'dark' ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)',
+            "&::-webkit-scrollbar-thumb:hover": {
+              background:
+                theme.palette.mode === "dark"
+                  ? "rgba(255,255,255,0.2)"
+                  : "rgba(0,0,0,0.2)",
             },
           })}
         >
@@ -398,16 +444,33 @@ export default function Tasks() {
               {loadingTasks ? (
                 Array.from(new Array(tasksPerPage)).map((_, index) => (
                   <TableRow key={index}>
-                    <TableCell><Skeleton /></TableCell>
-                    <TableCell><Skeleton /></TableCell>
-                    <TableCell><Skeleton /></TableCell>
-                    <TableCell><Skeleton /></TableCell>
-                    <TableCell><Skeleton /></TableCell>
-                    <TableCell><Skeleton /></TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton />
+                    </TableCell>
                     {(user.role === "admin" || user.role === "manager") && (
                       <TableCell>
-                        <Box sx={{ display: 'flex' }}>
-                          <Skeleton variant="circular" width={30} height={30} sx={{ mr: 1 }} />
+                        <Box sx={{ display: "flex" }}>
+                          <Skeleton
+                            variant="circular"
+                            width={30}
+                            height={30}
+                            sx={{ mr: 1 }}
+                          />
                           <Skeleton variant="circular" width={30} height={30} />
                         </Box>
                       </TableCell>
@@ -416,7 +479,12 @@ export default function Tasks() {
                 ))
               ) : displayTasks.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={user.role === "admin" || user.role === "manager" ? 7 : 6} sx={{ textAlign: "center" }}>
+                  <TableCell
+                    colSpan={
+                      user.role === "admin" || user.role === "manager" ? 7 : 6
+                    }
+                    sx={{ textAlign: "center" }}
+                  >
                     No tasks found.
                   </TableCell>
                 </TableRow>
@@ -428,11 +496,14 @@ export default function Tasks() {
                     </TableCell>
                     <TableCell>{task.description || "-"}</TableCell>
                     <TableCell>
-                      {(user.role === 'user' && isUserAssigned(task, user, teams)) ? (
+                      {user.role === "user" &&
+                      isUserAssigned(task, user, teams) ? (
                         <FormControl fullWidth size="small">
                           <Select
                             value={task.status}
-                            onChange={(e) => handleStatusChange(task._id, e.target.value)}
+                            onChange={(e) =>
+                              handleStatusChange(task._id, e.target.value)
+                            }
                           >
                             <MenuItem value="To Do">To Do</MenuItem>
                             <MenuItem value="In Progress">In Progress</MenuItem>
@@ -443,7 +514,9 @@ export default function Tasks() {
                         <StatusBadge status={task.status} size="small" />
                       )}
                     </TableCell>
-                    <TableCell><StatusBadge status={task.priority} size="small" /></TableCell>
+                    <TableCell>
+                      <StatusBadge status={task.priority} size="small" />
+                    </TableCell>
                     <TableCell>
                       {task.dueDate
                         ? new Date(task.dueDate).toLocaleDateString()
@@ -451,7 +524,7 @@ export default function Tasks() {
                     </TableCell>
                     <TableCell>
                       {task.assignees && task.assignees.length > 0
-                        ? task.assignees.map(a => a.name).join(", ")
+                        ? task.assignees.map((a) => a.name).join(", ")
                         : task.team?.name || "-"}
                     </TableCell>
                     {(user.role === "admin" || user.role === "manager") && (
@@ -462,7 +535,9 @@ export default function Tasks() {
                           </IconButton>
                         </Tooltip>
                         <Tooltip title="Delete" placement="top" arrow>
-                          <IconButton onClick={() => handleDeleteTask(task._id)}>
+                          <IconButton
+                            onClick={() => handleDeleteTask(task._id)}
+                          >
                             <DeleteForeverTwoToneIcon color="error" />
                           </IconButton>
                         </Tooltip>
@@ -488,7 +563,6 @@ export default function Tasks() {
         Total Tasks: {totalTasks}
       </Typography>
 
-
       <TaskFormDialog
         open={openDialog}
         onClose={handleCloseDialog}
@@ -497,7 +571,6 @@ export default function Tasks() {
         users={users}
         teams={teams}
       />
-
     </Container>
   );
 }

@@ -9,8 +9,8 @@ import {
   Box,
   CircularProgress,
 } from "@mui/material";
-import { toast } from 'react-toastify';
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
+import { toast } from "react-toastify";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
 
 export default function Login() {
   const { user, login, loading } = useAuth();
@@ -19,6 +19,20 @@ export default function Login() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
+    // Check for verification token in URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const urlToken = urlParams.get("token");
+    const verified = urlParams.get("verified");
+
+    if (urlToken && verified === "true") {
+      localStorage.setItem("token", urlToken);
+      // We will let AuthContext.js verify and fetch user info via /auth/me
+      toast.success("Email verified and logged in successfully!");
+      // Reload to let AuthContext catch the new token
+      window.location.href = "/dashboard";
+      return;
+    }
+
     if (!loading && user) {
       navigate("/dashboard");
     }
@@ -33,7 +47,7 @@ export default function Login() {
       await login(email, password);
       toast.success("Login successful!");
     } catch (error) {
-      toast.error(error.message);
+      toast.error(error.response?.data?.message || error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -52,11 +66,11 @@ export default function Login() {
   }
 
   return (
-    <Container sx={{ maxWidth: '500px !important', my: 'auto' }}>
-      <Box sx={{ textAlign: 'center' }}>
+    <Container sx={{ maxWidth: "500px !important", my: "auto" }}>
+      <Box sx={{ textAlign: "center" }}>
         <Button
           startIcon={<KeyboardBackspaceIcon />}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           size="small"
           sx={{ borderRadius: 2, mb: 4 }}
         >
@@ -92,12 +106,14 @@ export default function Login() {
           fullWidth
           sx={{ mb: 2 }}
           disabled={isSubmitting}
-          endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+          endIcon={
+            isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
+          }
         >
           Login
         </Button>
-        <Box sx={{ textAlign: 'center' }}>
-          <Button color="primary" onClick={() => navigate('/signup')}>
+        <Box sx={{ textAlign: "center" }}>
+          <Button color="primary" onClick={() => navigate("/signup")}>
             Don't have an account? Sign Up
           </Button>
         </Box>

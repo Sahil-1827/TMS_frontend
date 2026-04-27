@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import {
   Container,
   Typography,
@@ -8,21 +8,21 @@ import {
   Button,
   Box,
   CircularProgress,
-} from '@mui/material';
-import KeyboardBackspaceIcon from '@mui/icons-material/KeyboardBackspace';
-import { toast } from 'react-toastify';
-import api from '../api';
+} from "@mui/material";
+import KeyboardBackspaceIcon from "@mui/icons-material/KeyboardBackspace";
+import { toast } from "react-toastify";
+import api from "../api";
 
 export default function SignUp() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   useEffect(() => {
     if (!loading && user) {
-      navigate('/dashboard');
+      navigate("/dashboard");
     }
   }, [user, loading, navigate]);
 
@@ -32,10 +32,13 @@ export default function SignUp() {
     e.preventDefault();
     setIsSubmitting(true);
     try {
-      await api.post('/auth/register', { name, email, password });
-      toast.success('Registration successful! Please log in.');
-      navigate('/login');
+      await api.post("/auth/register", { name, email, password });
+      toast.success(
+        "Registration successful! Please check your email to verify your account first.",
+      );
+      navigate("/login");
     } catch (error) {
+      toast.error(error.response?.data?.message || error.message);
       console.error("Registration failed:", error);
     } finally {
       setIsSubmitting(false);
@@ -44,7 +47,7 @@ export default function SignUp() {
 
   if (loading) {
     return (
-      <Container sx={{ py: 4, textAlign: 'center' }}>
+      <Container sx={{ py: 4, textAlign: "center" }}>
         <CircularProgress />
       </Container>
     );
@@ -55,18 +58,18 @@ export default function SignUp() {
   }
 
   return (
-    <Container sx={{ maxWidth: '500px !important', my: 'auto' }}>
-      <Box sx={{ textAlign: 'center' }}>
+    <Container sx={{ maxWidth: "500px !important", my: "auto" }}>
+      <Box sx={{ textAlign: "center" }}>
         <Button
           startIcon={<KeyboardBackspaceIcon />}
-          onClick={() => navigate('/')}
+          onClick={() => navigate("/")}
           size="small"
           sx={{ borderRadius: 2, mb: 4 }}
         >
           Back to Home
         </Button>
       </Box>
-      <Typography variant="h4" sx={{ mb: 4, textAlign: 'center' }}>
+      <Typography variant="h4" sx={{ mb: 4, textAlign: "center" }}>
         Sign Up
       </Typography>
       <Box component="form" onSubmit={handleSignUp}>
@@ -104,12 +107,14 @@ export default function SignUp() {
           fullWidth
           sx={{ mb: 2 }}
           disabled={isSubmitting}
-          endIcon={isSubmitting ? <CircularProgress size={20} color="inherit" /> : null}
+          endIcon={
+            isSubmitting ? <CircularProgress size={20} color="inherit" /> : null
+          }
         >
           Sign Up
         </Button>
-        <Box sx={{ textAlign: 'center' }}>
-          <Button color="primary" onClick={() => navigate('/login')}>
+        <Box sx={{ textAlign: "center" }}>
+          <Button color="primary" onClick={() => navigate("/login")}>
             Already have an account? Login
           </Button>
         </Box>
