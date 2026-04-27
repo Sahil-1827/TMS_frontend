@@ -192,7 +192,7 @@ export default function TaskFormDialog({
             helperText={errors.description}
           />
 
-          <FormControl fullWidth>
+          <FormControl fullWidth disabled={taskToEdit?.status === "Done"}>
             <InputLabel>Status</InputLabel>
             <Select
               name="status"
