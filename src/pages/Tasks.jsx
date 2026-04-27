@@ -497,7 +497,8 @@ export default function Tasks() {
                     <TableCell>{task.description || "-"}</TableCell>
                     <TableCell>
                       {user.role === "user" &&
-                      isUserAssigned(task, user, teams) ? (
+                      isUserAssigned(task, user, teams) &&
+                      task.status !== "Done" ? (
                         <FormControl fullWidth size="small">
                           <Select
                             value={task.status}
